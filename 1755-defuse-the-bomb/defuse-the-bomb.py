@@ -1,36 +1,35 @@
+from typing import List
+
 class Solution:
     def decrypt(self, code: List[int], k: int) -> List[int]:
-
         n = len(code)
+        decrypted = [0] * n  # Final decrypted result
 
-        result = [0] * n
-
+        # Case k > 0 → sum of next k elements
         if k > 0:
+            window_sum = 0
 
-            current_sum = 0
+            # Loop over circular array with extra k elements for wrap-around
+            for i in range(n + k):
+                window_sum += code[i % n]  # Add current element to window
 
-            for i in range( n + k):
-                current_sum+= code[i % n]
+                if i >= k:
+                    # Remove element leaving the window
+                    window_sum -= code[i - k]
+                    # Assign sum to the correct index in result
+                    decrypted[i - k] = window_sum
 
-                if i >= k :
-                    current_sum-= code[i - k]
-                    result[i - k] = current_sum
-
+        # Case k < 0 → sum of previous |k| elements
         elif k < 0:
+            window_sum = 0
+            # Use absolute value of k
+            k = abs(k)
 
-            current_sum = 0
-
-            for i in range(k, n):
+            for i in range(-k, n):
                 if i >= 0:
-                    result[i] = current_sum
-                    current_sum-= code[i - abs(k)]
-                current_sum+= code[i]
+                    decrypted[i] = window_sum
+                    window_sum -= code[i - k]  # Remove element leaving the window
+                window_sum += code[i]  # Add current element to window
 
-        return result
-        
-            
-
-
-
-
-        
+        # Case k == 0 → all zeros (already initialized)
+        return decrypted
